@@ -1,0 +1,8 @@
+[package]
+name = "psilocybin"
+version = "0.1.0"
+authors = ["Rose <lain@lain.org.uk>"]
+
+[dependencies]
+dft = "0.5.3"
+rustbox = "0.9.0"
