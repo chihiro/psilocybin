@@ -1,4 +1,9 @@
+mod visualizer;
+mod spectrum; 
+
 use std::env::args;
+use visualizer::*;
+use spectrum::Spectrum;
 
 fn usage() {
   let name = args().nth(0).unwrap_or("psilocybin".into()); {
@@ -9,14 +14,8 @@ fn usage() {
   };
 }
 
-#[derive(Debug)]
-pub struct VisualizerOptions {
-  fifo: String,
-  rate: u16
-}
-
 fn main() {
-  let mut opts = VisualizerOptions {
+  let mut opts = Preferences {
     fifo: "/tmp/mpd.fifo".into(),
     rate: 25
   };
@@ -41,5 +40,6 @@ fn main() {
     }
   }
 
-  println!("{:?}", opts);
+  let visualizer = Runner::new(opts, Spectrum);
+  visualizer.run().unwrap();
 }
