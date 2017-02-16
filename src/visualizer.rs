@@ -14,7 +14,7 @@ pub enum State {
 pub type Buffer = Vec<i16>;
 
 pub trait Visualizer {
-  fn listen(&self, &Buffer) -> State;
+  fn listen(&self, &mut Buffer) -> State;
 }
 
 #[derive(Debug)]
@@ -51,9 +51,9 @@ impl<T: Visualizer> Runner<T> {
 
   pub fn run(&self) -> io::Result<()> {
     loop {
-      let bytebuf: Buffer = try!(self.read(128));
+      let mut bytebuf: Buffer = try!(self.read(128));
 
-      match self.viz.deref().listen(&bytebuf) {
+      match self.viz.deref().listen(&mut bytebuf) {
         State::Continue => {},
         State::Finish => break,
         State::Error(err) => {
