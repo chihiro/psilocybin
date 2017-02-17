@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 use std::io;
-use std::ops::Deref;
+use std::ops::DerefMut;
 use std::io::prelude::*;
 use std::fs::File;
 use std::mem;
@@ -14,7 +14,7 @@ pub enum State {
 pub type Buffer = Vec<i16>;
 
 pub trait Visualizer {
-  fn listen(&self, &Buffer) -> State;
+  fn listen(&mut self, &Buffer) -> State;
 }
 
 #[derive(Debug)]
@@ -40,7 +40,7 @@ impl<T: Visualizer> Runner<T> {
   fn read(&self, n: usize) -> io::Result<Buffer> {
     let fifo = try!(File::open(&self.opts.fifo));
     /// read n * 2 bytes as we'll be producing i16s
-    let bytebuf: Vec<u8> = fifo.bytes().take(n * 2).map(|b| b.expect("failed to read byte!")).collect();
+    let bytebuf: Vec<u8> = fifo.bytes().take(n * 4).map(|b| b.expect("failed to read byte!")).collect();
 
     /// convert u8s to u16s
     Ok(bytebuf.chunks(2).map(|byteslice| {
@@ -50,11 +50,11 @@ impl<T: Visualizer> Runner<T> {
     }).collect())
   }
 
-  pub fn run(&self) -> io::Result<()> {
+  pub fn run(&mut self) -> io::Result<()> {
     loop {
-      let bytebuf: Buffer = try!(self.read(128));
+      let bytebuf: Buffer = try!(self.read(80));
 
-      match self.viz.deref().listen(&bytebuf) {
+      match self.viz.deref_mut().listen(&bytebuf) {
         State::Continue => {},
         State::Finish => break,
         State::Error(err) => {

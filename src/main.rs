@@ -40,6 +40,7 @@ fn main() {
     }
   }
 
-  let visualizer = Runner::new(opts, Spectrum);
+  let mut spec = Spectrum::new();
+  let mut visualizer = Runner::new(opts, spec);
   visualizer.run().unwrap();
 }
